@@ -1,0 +1,13 @@
+parameters:
+	level: 6
+	paths:
+		- src
+	fileExtensions:
+		- php
+	excludes_analyse:
+		- %currentWorkingDirectory%/src/Sdk
+
+includes:
+	- vendor/phpstan/phpstan-phpunit/extension.neon
+	- vendor/phpstan/phpstan-phpunit/rules.neon
+	- vendor/jangregor/phpstan-prophecy/src/extension.neon

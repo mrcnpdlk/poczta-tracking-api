@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6270e2d42ec759e40abebf5d27ff76aa",
+    "content-hash": "e45421eaa3bac01deae38de14d6781fc",
     "packages": [
         {
             "name": "mrcnpdlk/lib-configuration",
@@ -198,6 +198,73 @@
                 "php"
             ],
             "time": "2019-01-10T10:25:59+00:00"
+        },
+        {
+            "name": "wsdltophp/wssecurity",
+            "version": "1.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WsdlToPhp/WsSecurity.git",
+                "reference": "6a450af3cd462cbf73fdb3a09e80322da893af4f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WsdlToPhp/WsSecurity/zipball/6a450af3cd462cbf73fdb3a09e80322da893af4f",
+                "reference": "6a450af3cd462cbf73fdb3a09e80322da893af4f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-soap": "*",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.0",
+                "phpunit/phpunit": "^4.8 || ^6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WsdlToPhp\\WsSecurity\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mikaël DELSOL",
+                    "email": "contact@wsdltophp.com",
+                    "homepage": "https://www.wsdltophp.com",
+                    "role": "Owner"
+                },
+                {
+                    "name": "Alexey Anisimov",
+                    "email": "mne@lexa.in",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Tom Vaughan",
+                    "email": "tom.vaughan@farpoint.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "NtlBldrv",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "baijunyao",
+                    "email": "baijunyao@baijunyao.com",
+                    "role": "Contributor"
+                }
+            ],
+            "description": "Allows to easily add Ws Security header to a SOAP Request",
+            "keywords": [
+                "php",
+                "soap",
+                "wsse"
+            ],
+            "time": "2019-04-09T08:40:37+00:00"
         }
     ],
     "packages-dev": [
