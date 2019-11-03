@@ -7,11 +7,16 @@
 
 namespace Mrcnpdlk\Api\PocztaTracking;
 
+use Mrcnpdlk\Api\PocztaTracking\Exception\NotFoundException;
+use Mrcnpdlk\Api\PocztaTracking\Exception\SoapException;
+use Mrcnpdlk\Api\PocztaTracking\Sdk\ServiceType\Maksymalna;
 use Mrcnpdlk\Api\PocztaTracking\Sdk\ServiceType\Sprawdz;
 use Mrcnpdlk\Api\PocztaTracking\Sdk\ServiceType\Wersja;
 use Mrcnpdlk\Api\PocztaTracking\Sdk\ServiceType\Witaj;
 use Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\SprawdzPrzesylke;
 use Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\SprawdzPrzesylkePl;
+use Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\SprawdzPrzesylki;
+use Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\SprawdzPrzesylkiPl;
 use WsdlToPhp\PackageBase\AbstractSoapClientBase;
 use WsdlToPhp\WsSecurity\WsSecurity;
 
@@ -21,6 +26,10 @@ class Api
      * @var \Mrcnpdlk\Api\PocztaTracking\Config
      */
     private $oConfig;
+    /**
+     * @var \Mrcnpdlk\Api\PocztaTracking\Sdk\ServiceType\Maksymalna
+     */
+    private $oHandlerMaksymalna;
     /**
      * @var Sprawdz
      */
@@ -57,6 +66,128 @@ class Api
     }
 
     /**
+     * sprawdzPrzesylke(String numer) – wymaga podania numeru przesyłki, zwraca informacje o danej przesyłce
+     * w strukturze Przesylka – szczegółowe informacje o placówkach w atrybutach typu Jednostka nie są
+     * generowane
+     *
+     * @param string $trackingNr
+     *
+     * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
+     *
+     * @return \Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\Przesylka
+     */
+    public function checkShipment(string $trackingNr): Sdk\StructType\Przesylka
+    {
+        $res = $this->getHandlerSprawdz()->sprawdzPrzesylke(new SprawdzPrzesylke($trackingNr));
+        if (is_bool($res)) {
+            throw $this->getExceptionObject($this->getHandlerSprawdz()->getLastError());
+        }
+
+        $obj = $res->getReturn();
+
+        if (null === $obj) {
+            throw new NotFoundException(sprintf('Przesyłka o numerze %s nie została odnaleziona', $trackingNr));
+        }
+        $status = $obj->getStatus();
+
+        if (0 !== $status) {
+            switch ($status) {
+                case -1:
+                    throw new NotFoundException(sprintf('Przesyłka o numerze %s nie została odnaleziona', $trackingNr));
+                case -2:
+                    throw new Exception(sprintf('Numer przesyłki %s jest błędny', $trackingNr));
+                case -99:
+                default:
+                    throw new Exception(sprintf('Nieznany bład'));
+            }
+        }
+
+        return $obj;
+    }
+
+    /**
+     * @param string $trackingNr
+     *
+     * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
+     *
+     * @return \Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\Przesylka
+     */
+    public function checkShipmentExt(string $trackingNr): Sdk\StructType\Przesylka
+    {
+        $res = $this->getHandlerSprawdz()->sprawdzPrzesylkePl(new SprawdzPrzesylkePl($trackingNr));
+        if (is_bool($res)) {
+            throw $this->getExceptionObject($this->getHandlerSprawdz()->getLastError());
+        }
+
+        $obj = $res->getReturn();
+
+        if (null === $obj) {
+            throw new NotFoundException(sprintf('Przesyłka o numerze %s nie została odnaleziona', $trackingNr));
+        }
+        $status = $obj->getStatus();
+
+        if (0 !== $status) {
+            switch ($status) {
+                case -1:
+                    throw new NotFoundException(sprintf('Przesyłka o numerze %s nie została odnaleziona', $trackingNr));
+                case -2:
+                    throw new Exception(sprintf('Numer przesyłki %s jest błędny', $trackingNr));
+                case -99:
+                default:
+                    throw new Exception(sprintf('Nieznany bład'));
+            }
+        }
+
+        return $obj;
+    }
+
+    /**
+     * @param array $trackingNrs
+     *
+     * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
+     *
+     * @return \Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\Komunikat
+     */
+    public function checkShipments(array $trackingNrs): Sdk\StructType\Komunikat
+    {
+        $res = $this->getHandlerSprawdz()->sprawdzPrzesylki(new SprawdzPrzesylki($trackingNrs));
+        if (is_bool($res)) {
+            throw $this->getExceptionObject($this->getHandlerSprawdz()->getLastError());
+        }
+
+        $obj = $res->getReturn();
+
+        if (null === $obj || null === $obj->getPrzesylki()) {
+            throw new NotFoundException('Nie znaleziono przesyłek spełniających kryteria');
+        }
+
+        return $obj;
+    }
+
+    /**
+     * @param array $trackingNrs
+     *
+     * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
+     *
+     * @return \Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\Komunikat
+     */
+    public function checkShipmentsExt(array $trackingNrs): Sdk\StructType\Komunikat
+    {
+        $res = $this->getHandlerSprawdz()->sprawdzPrzesylkiPl(new SprawdzPrzesylkiPl($trackingNrs));
+        if (is_bool($res)) {
+            throw $this->getExceptionObject($this->getHandlerSprawdz()->getLastError());
+        }
+
+        $obj = $res->getReturn();
+
+        if (null === $obj || null === $obj->getPrzesylki()) {
+            throw new NotFoundException('Nie znaleziono przesyłek spełniających kryteria');
+        }
+
+        return $obj;
+    }
+
+    /**
      * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
      *
      * @return string|null
@@ -66,6 +197,21 @@ class Api
         $res = $this->getHandlerWitaj()->witaj(new Sdk\StructType\Witaj('Anonymous'));
         if (is_bool($res)) {
             throw $this->getExceptionObject($this->getHandlerWitaj()->getLastError());
+        }
+
+        return $res->getReturn();
+    }
+
+    /**
+     * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
+     *
+     * @return int
+     */
+    public function getMaxLimit(): int
+    {
+        $res = $this->getHandlerMaksymalna()->maksymalnaLiczbaPrzesylek();
+        if (is_bool($res)) {
+            throw $this->getExceptionObject($this->getHandlerSprawdz()->getLastError());
         }
 
         return $res->getReturn();
@@ -87,40 +233,6 @@ class Api
     }
 
     /**
-     * @param string $trackingNr
-     *
-     * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
-     *
-     * @return \Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\Przesylka
-     */
-    public function track(string $trackingNr): Sdk\StructType\Przesylka
-    {
-        $res = $this->getHandlerSprawdz()->sprawdzPrzesylke(new SprawdzPrzesylke($trackingNr));
-        if (is_bool($res)) {
-            throw $this->getExceptionObject($this->getHandlerSprawdz()->getLastError());
-        }
-
-        return $res->getReturn();
-    }
-
-    /**
-     * @param string $trackingNr
-     *
-     * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
-     *
-     * @return \Mrcnpdlk\Api\PocztaTracking\Sdk\StructType\Przesylka
-     */
-    public function trackPL(string $trackingNr): Sdk\StructType\Przesylka
-    {
-        $res = $this->getHandlerSprawdz()->sprawdzPrzesylkePl(new SprawdzPrzesylkePl($trackingNr));
-        if (is_bool($res)) {
-            throw $this->getExceptionObject($this->getHandlerSprawdz()->getLastError());
-        }
-
-        return $res->getReturn();
-    }
-
-    /**
      * @param array $tErr
      *
      * @return \Mrcnpdlk\Api\PocztaTracking\Exception
@@ -129,11 +241,33 @@ class Api
     {
         /** @var \Throwable $oErr */
         $oErr = reset($tErr);
+        if (!$oErr instanceof \Throwable) {
+            return new Exception('Unknown error');
+        }
         if ($oErr instanceof \SoapFault) {
-            return new Exception($oErr->getMessage(), 1, $oErr);
+            return new SoapException($oErr->getMessage(), 1, $oErr);
         }
 
         return new Exception('Soap call exception', 1, $oErr);
+    }
+
+    /**
+     * @return \Mrcnpdlk\Api\PocztaTracking\Sdk\ServiceType\Maksymalna
+     */
+    protected function getHandlerMaksymalna(): Maksymalna
+    {
+        if (null === $this->oHandlerMaksymalna) {
+            $this->oHandlerMaksymalna = new Maksymalna($this->tSoapOptions);
+            $this->oHandlerMaksymalna
+                ->getSoapClient()
+                ->__setSoapHeaders(WsSecurity::createWsSecuritySoapHeader(
+                    $this->oConfig->getLogin(),
+                    $this->oConfig->getPassword(),
+                    false))
+            ;
+        }
+
+        return $this->oHandlerMaksymalna;
     }
 
     /**
