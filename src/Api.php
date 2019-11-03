@@ -188,6 +188,8 @@ class Api
     }
 
     /**
+     * Metoda do testów poprawności przekazywania parametrów. Wymaga podania parametru `string`
+     *
      * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
      *
      * @return string|null
@@ -203,6 +205,9 @@ class Api
     }
 
     /**
+     * Zwraca maksymalną liczbę o przesyłek (int), o które można zapytać się
+     * metodami: `checkShipments` i `checkShipmentsExt`
+     *
      * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
      *
      * @return int
@@ -218,6 +223,8 @@ class Api
     }
 
     /**
+     * Zwraca numer wersji web service’u
+     *
      * @throws \Mrcnpdlk\Api\PocztaTracking\Exception
      *
      * @return string|null
